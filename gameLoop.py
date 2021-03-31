@@ -1,4 +1,5 @@
 import pygame
+import copy 
 from solver import *
 from pygame.locals import (
     K_ESCAPE,
@@ -6,15 +7,28 @@ from pygame.locals import (
     KEYDOWN,
     QUIT,
 )
+#Colors
+white = (236, 239, 241)
+black = (38, 50, 56)
+grey = (144, 164, 174)
+red = (244, 67, 54)
+green = (76, 175, 80)
+blue = (33, 150, 243)
+orange = (255, 152, 0)
+pink = (240, 98, 146)
+purple = (156, 39, 176)
+
 
 levels = [
-    [2,4,[[2,1,2,1],[1,2,1,2],[],[]]],
+    [2,4,[[1,2,1,2],[1,2,1,2],[],[]]],
     [2,4,[[2,2,2,1],[1,1,1,2],[],[]]],
     [2,4,[[],[2,1,2,1],[1,2,1,2],[]]],
     [2,4,[[2,1,2,1],[],[1,2,1,2],[]]]]
+    
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption("Ball Sort Puzzle")
 
 class Game:
     def __init__(self,level):
@@ -61,6 +75,8 @@ class gameLoop:
         self.fromTube = -1
         self.toTube = -1
         self.currentLevel = 0
+        self.hint = [0,0]
+        self.showHint = False
         pygame.init()
   
     def loadNextLevel(self):
@@ -70,73 +86,93 @@ class gameLoop:
         self.fromTube = -1
         self.toTube = -1
 
-    def drawMap(self):
-        screen.fill((236, 239, 241))
-        for x  in range(1,self.game.m+1):
-            self.drawTube(x)
-    
+    def drawGame(self):
+        font = pygame.font.Font('freesansbold.ttf', 32)      
+        screen.fill(white)
+        level = font.render('Level', True, black)
+        screen.blit(level,(100,30))
+        levelText = font.render("%d" % (self.currentLevel + 1), True, black)
+        screen.blit(levelText,(137,70))         
+        hint = font.render('Hint', True, black)
+        screen.blit(hint,(600,30))
+
+        if self.showHint:
+            hintText = font.render("%d -> %d" % tuple(self.hint), True, black)
+            screen.blit(hintText,(590,70))    
+
+        for x  in range(0,self.game.m):
+            self.drawTube(x)    
+       
+
     def color(self,number):
         if number == 1:
-            color = (244, 67, 54)
+            color = red
         elif number == 2:
-            color = (76, 175, 80)
+            color = green
         elif number == 3:
-            color = (33, 150, 243)
+            color = blue
         elif number == 4:
-            color = (255, 152, 0)
+            color = orange
         elif number == 5:
-            color = (255, 193, 7)
+            color = pink
         elif number == 6:
-            color = (156, 39, 176)
+            color = purple
         return color
 
     def drawTube(self,number):
         center = SCREEN_WIDTH / (self.game.m+1)
-        tube = pygame.Surface((60, 220))
-        tube.fill((38, 50, 56))
+        tube = pygame.Surface((60, 300)) 
+        font = pygame.font.Font('freesansbold.ttf', 40)
+        tube.fill(black)
         if number == self.fromTube:
-            tube.fill((144, 164, 174))
-        tube_center = (
-        (center*number -tube.get_width()/2),
-        (SCREEN_HEIGHT-tube.get_height())/2
-        )
-        pygame.draw.rect(tube,(236, 239, 241),pygame.Rect(5,0,50,215))
+            tube.fill(grey)
+        tube_center = ((center*(number+1) -tube.get_width()/2),(SCREEN_HEIGHT-tube.get_height())/2 + 30)
+        pygame.draw.rect(tube,white,pygame.Rect(5,0,50,215))
+        pygame.draw.rect(tube,white,pygame.Rect(0,220,60,80))  
+        text = font.render("%d" % number, True, black, white)
+        tube.blit(text,(20,240))
         currentBall = 1
-        for x in self.game.arrTotal[number-1]:    
+        for x in self.game.arrTotal[number]:    
             pygame.draw.circle(tube,self.color(x),(30,215-(25*currentBall)),20)
             currentBall = currentBall +2
         tubeClickable = screen.blit(tube, tube_center)
-        self.game.tubesArray[number-1] = tubeClickable
+        self.game.tubesArray[number] = tubeClickable
+
+    def handleMouseClick(self):
+        pos=pygame.mouse.get_pos()
+        for tube in self.game.tubesArray:
+            if tube.collidepoint(pos):
+                if not self.tubeSelected : 
+                    self.fromTube = self.game.tubesArray.index(tube)
+                    self.tubeSelected = True
+                else:
+                    self.toTube = self.game.tubesArray.index(tube)
+                    self.game.moveBall(self.fromTube,self.toTube)
+                    self.tubeSelected = False
+                    self.fromTube = -1 
+                    self.toTube = -1 
+                    self.showHint = False
+
 
     def handleEvents(self):
         for event in pygame.event.get():
             if event.type == pygame.MOUSEBUTTONUP:
-                pos=pygame.mouse.get_pos()
-                for tube in self.game.tubesArray:
-                    if tube.collidepoint(pos):
-                        if not self.tubeSelected : 
-                            self.fromTube = self.game.tubesArray.index(tube)+1
-                            self.tubeSelected = True
-                        else:
-                            self.toTube = self.game.tubesArray.index(tube)+1
-                            self.game.moveBall(self.fromTube-1,self.toTube-1)
-                            self.tubeSelected = False
-                            self.fromTube = -1 
-                            self.toTube = -1 
+                self.handleMouseClick()
             if event.type == KEYDOWN:
                 if event.key == K_ESCAPE:
                     return False
                 elif event.key == K_h:
+                    self.showHint = True
                     root = Node(None,self.game.arrTotal,self.game.completed,(-1,-1),0,1)
-                    bfsSolveBlock(root)
-                    dfsSolveBlock(root)
+                    finalState=bfs(root)
+                    self.hint = getHint(finalState)
                     
             elif event.type == QUIT:
                 return False
         return True
 
     def update(self):
-        self.drawMap()
+        self.drawGame()
         pygame.display.flip()
         if self.game.gameOver():
             if self.currentLevel < len(levels)-1:

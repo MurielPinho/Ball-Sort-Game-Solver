@@ -108,7 +108,7 @@ def bfs(rootnode):
     while len(queue) > 0:
         currNode=queue[0]
         if gameOver(currNode):
-            print("\nFOUND SOLUTION\n")
+            #print("\nFOUND SOLUTION\n")
             break
         else:
             childs = generateChilds(currNode)
@@ -125,7 +125,7 @@ def dfs(rootnode):
     while len(queue) > 0:
         currNode=queue[0]
         if gameOver(currNode):
-            print("\nFOUND SOLUTION\n")
+            #print("\nFOUND SOLUTION\n")
             break
         else:
             childs = generateChilds(currNode)
@@ -150,6 +150,20 @@ def getSolutionPath(node):
             break
     for step in reversed(solution):
         print(step[0]," Next move (from,to):" ,step[1])
+
+def getHint(node):
+    solution = [(node.getMatrix(),"Final Solution")]
+    currNode=node
+    while True:
+        parent=currNode.getParent()
+        if parent != None:
+            solution.append((parent.getMatrix(),currNode.getLastMove()))
+            currNode=parent
+        else:
+            break
+    solution = solution[::-1]
+    return solution[0][1]
+        
 
 """bfs search functions"""
 def bfsSolveBlock(rootnode):
