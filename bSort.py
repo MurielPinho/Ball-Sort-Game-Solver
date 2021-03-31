@@ -139,6 +139,12 @@ def bfs(visited, graph, node):
             bfsvisited.append(neighbour)
             bfsqueue.append(neighbour)
 
+"""bfs search functions"""
+def bfsSolveBlock(rootnode):
+    print("\nBFS\n")
+    finalState=bfs(bfsvisited,graph,rootnode)
+    getSolutionPath(finalState)
+
 def getSolutionPath(node):
     solution = [(node.getMatrix(),"Final Solution")]
     currNode=node
@@ -151,11 +157,5 @@ def getSolutionPath(node):
             break
     for step in reversed(solution):
         print(step[0]," Next move (from,to):" ,step[1])
-
-"""bfs search functions"""
-def bfsSolveBlock(rootnode):
-    print("\nBFS\n")
-    finalState=bfs(visited,graph,rootnode)
-    getSolutionPath(finalState)
 
 bfsSolveBlock(root)
