@@ -88,9 +88,9 @@ def generateChilds(parent):
                 childs.append(newstate)
     return childs
 
-arr1=[1,2,3]
+arr1=[3,2,1]
 arr2=[2,1,3]
-arr3 = [3,2,1]
+arr3 = [1,2,3]
 arr4 = []
 n=3
 m=3
@@ -125,7 +125,7 @@ while gameovers < 20:
 bfsvisited = [] # List to keep track of visited nodes.
 bfsqueue = []     #Initialize a queue
 
-def bfs(visited, graph, node):
+def bfs(node):
   bfsvisited.append(node)
   bfsqueue.append(node)
 
@@ -139,11 +139,32 @@ def bfs(visited, graph, node):
             bfsvisited.append(neighbour)
             bfsqueue.append(neighbour)
 
-"""bfs search functions"""
+#bfs search functions
 def bfsSolveBlock(rootnode):
     print("\nBFS\n")
-    finalState=bfs(bfsvisited,graph,rootnode)
+    finalState=bfs(rootnode)
     getSolutionPath(finalState)
+
+dfsvisited = set() # Set to keep track of visited nodes.
+
+def dfs(node,winningStates):
+    if len(winningStates) == 1:
+        return
+    if node not in dfsvisited:
+        dfsvisited.add(node)
+        for neighbour in graph[node]:
+            if gameOver(neighbour):
+                winningStates.append(neighbour)
+            dfs(neighbour,winningStates)
+
+def dfsSolveBlock(rootnode):
+    
+    print("\nDFS\n")
+    winningStates=[]
+    dfs(root,winningStates)
+    finalState=winningStates[0]
+    getSolutionPath(finalState)
+
 
 def getSolutionPath(node):
     solution = [(node.getMatrix(),"Final Solution")]
@@ -159,3 +180,4 @@ def getSolutionPath(node):
         print(step[0]," Next move (from,to):" ,step[1])
 
 bfsSolveBlock(root)
+dfsSolveBlock(root)
