@@ -3,13 +3,16 @@ from collections import Counter
 
 class Node:
     """ Constructor """
-    def __init__(self,parent, matrix, arrCompleted,lastMove,depth,cost):
+    def __init__(self,parent, matrix, arrCompleted, n, m, ntubes, lastMove, depth, cost):
         self.parent = parent
         self.matrix = matrix
         self.arrCompleted = arrCompleted
         self.lastMove = lastMove
         self.depth = depth
         self.cost = cost
+        self.n = n
+        self.m = m
+        self.ntubes = ntubes
 
     """ Returns Node matrix """
     def getMatrix(self):
@@ -42,7 +45,7 @@ class Node:
     def moveBall(self,fromCol,toCol):
         num = self.matrix[fromCol].pop(-1)
         self.matrix[toCol].append(num)
-        if checkCompleted(self.matrix,toCol):
+        if self.checkCompleted(self.matrix,toCol):
             self.arrCompleted[toCol] = 1
         self.lastMove = (fromCol,toCol)
 
@@ -65,141 +68,129 @@ class Node:
                         self.cost+=(len(column)-i)
                         break
             elif len(column)==1: self.cost += 1
+    """returns true if a game is over, false otherwise"""
 
+    def gameOver(self):
+            if self.getArrCompleted().count(1) == self.n:
+                return True
+            else: return False
 
-""" returns true if a column on a given array is completed with balls of the same colour false otherwise"""
+    """ returns true if a column on a given array is completed with balls of the same colour false otherwise"""
 
-def checkCompleted(matrix,col):
-    if len(set(matrix[col])) == 1 and len(matrix[col]) == m:
-        return True
-    else: return False
-
-"""returns true if a given toCol fromCol move is possible given a matrix and its completed array"""
-
-def validMove(matrix,completed,fromCol,toCol):
-    if len(matrix[fromCol]) > 0 and len(matrix[toCol]) < m and fromCol != toCol and not(completed[fromCol]):
-        if len(matrix[toCol]) == 0:
-            return True
-        elif matrix[fromCol][-1] == matrix[toCol][-1]:
-            return True
-        else:
-            return False
-    else: return False
-
-"""returns true if a game is over, false otherwise"""
-
-def gameOver(node):
-        if node.getArrCompleted().count(1) == n:
+    def checkCompleted(self,matrix,col):
+        if len(set(matrix[col])) == 1 and len(matrix[col]) == self.m:
             return True
         else: return False
 
-"""returns an array with all the possible child states from a given parent node"""
-def generateChilds(parent):
-    childs=[]
-    for i in range(0,n+ntubes):
-        for j in range(0,n+ntubes):
-            if validMove(parent.getMatrix(),parent.getArrCompleted(),i,j) and parent.getLastPlayedCol() != i:
-                newstate = Node(parent,copy.deepcopy(parent.getMatrix()),copy.deepcopy(parent.getArrCompleted()),(i,j),parent.getDepth()+1,0)
-                newstate.moveBall(i,j)
-                childs.append(newstate)
-    return childs
+    """returns true if a given toCol fromCol move is possible given a matrix and its completed array"""
 
-arr1=[3,2,1]
-arr2=[2,1,3]
-arr3 = [1,2,3]
-arr4 = []
-n=3
-m=3
-ntubes=1
-arrTotal=[arr1,arr2,arr3,arr4]
+    def validMove(self,fromCol,toCol):
+        if len(self.matrix[fromCol]) > 0 and len(self.matrix[toCol]) < self.m and fromCol != toCol and not(self.arrCompleted[fromCol]):
+            if len(self.matrix[toCol]) == 0:
+                return True
+            elif self.matrix[fromCol][-1] == self.matrix[toCol][-1]:
+                return True
+            else:
+                return False
+        else: return False
+
+
+
+    """returns an array with all the possible child states from a given parent node"""
+    def generateChilds(self):
+        childs=[]
+        for i in range(0,self.ntubes):
+            for j in range(0,self.ntubes):
+                if self.validMove(i,j) and self.getLastPlayedCol() != i:
+                    newstate = Node(self,copy.deepcopy(self.getMatrix()),copy.deepcopy(self.getArrCompleted()),self.n,self.m,self.ntubes,(i,j),self.getDepth()+1,0)
+                    newstate.moveBall(i,j)
+                    childs.append(newstate)
+        return childs
+
+class Graph:
+    def __init__(self,root):
+        self.root = root
+        self.graph = {}
+        self.bfsvisited = [] # List to keep track of visited nodes.
+        self.bfsqueue = [] 
+        self.dfsvisited = set()
+        self.generateGraph()
+
+    """ generates childs for the root node """
+    def generateGraph(self):
+        
+        gameovers=0
+        self.graph[self.root] = self.root.generateChilds()
+    
+        for child in self.graph[self.root]:
+            self.graph[child]=[]
+        
+        while gameovers < 20:
+            for key in list(self.graph):
+                if self.graph[key] == [] and not(key.gameOver()):
+                    self.graph[key] = key.generateChilds()
+                    for childs in self.graph[key]:
+                        self.graph[childs] = []
+                if key.gameOver():
+                    gameovers += 1
+
+    def bfs(self,node):
+        self.bfsvisited.append(node)
+        self.bfsqueue.append(node)
+
+        while self.bfsqueue:
+            s = self.bfsqueue.pop(0) 
+
+            for neighbour in self.graph[s]:
+                if neighbour.gameOver():
+                    return neighbour
+                elif neighbour not in self.bfsvisited:
+                    self.bfsvisited.append(neighbour)
+                    self.bfsqueue.append(neighbour)
+
+    def dfs(self,node,winningStates):
+        if len(winningStates) == 1:
+            return
+        if node not in self.dfsvisited:
+            self.dfsvisited.add(node)
+            for neighbour in self.graph[node]:
+                if neighbour.gameOver():
+                    winningStates.append(neighbour)
+                self.dfs(neighbour,winningStates)
+
+    def dfsSolveBlock(self,rootnode):
+        
+        print("\nDFS\n")
+        winningStates=[]
+        self.dfs(rootnode,winningStates)
+        finalState=winningStates[0]
+        self.getSolutionPath(finalState)
+    def bfsSolveBlock(self,rootnode):
+        print("\nBFS\n")
+        finalState=self.bfs(rootnode)
+        self.getSolutionPath(finalState)
+
+    def getSolutionPath(self,node):
+        solution = [(node.getMatrix(),"Final Solution")]
+        currNode=node
+        while True:
+            parent=currNode.getParent()
+            if parent != None:
+                solution.append((parent.getMatrix(),currNode.getLastMove()))
+                currNode=parent
+            else:
+                break
+        for step in reversed(solution):
+            print(step[0]," Next move (from,to):" ,step[1])
+
+
+
+arrTotal=[[3,2,1],[2,1],[1,2,3],[3]]
 completed = [0,0,0,0]
 
-root = Node(None,arrTotal,completed,(-1,-1),0,0)
+root = Node(None,arrTotal,completed,3,3,4,(-1,-1),0,0)
+graph1 = Graph(root)
+graph1.bfsSolveBlock(root)
+graph1.dfsSolveBlock(root)
 
-graph = {
-
-}
-
-""" generates childs for the root node """
-graph[root] = generateChilds(root)
-
-
-for child in graph[root]:
-    graph[child]=[]
-
-gameovers=0
-
-while gameovers < 20:
-    for key in list(graph):
-        if graph[key] == [] and not(gameOver(key)):
-            graph[key] = generateChilds(key)
-            for childs in graph[key]:
-                graph[childs] = []
-        if gameOver(key):
-            gameovers += 1
-
-bfsvisited = [] # List to keep track of visited nodes.
-bfsqueue = []     #Initialize a queue
-
-def bfs(node):
-  bfsvisited.append(node)
-  bfsqueue.append(node)
-
-  while bfsqueue:
-    s = bfsqueue.pop(0) 
-
-    for neighbour in graph[s]:
-        if gameOver(neighbour):
-            return neighbour
-        elif neighbour not in bfsvisited:
-            bfsvisited.append(neighbour)
-            bfsqueue.append(neighbour)
-
-#bfs search functions
-def bfsSolveBlock(rootnode):
-    print("\nBFS\n")
-    finalState=bfs(rootnode)
-    getSolutionPath(finalState)
-
-dfsvisited = set() # Set to keep track of visited nodes.
-
-def dfs(node,winningStates):
-    if len(winningStates) == 1:
-        return
-    if node not in dfsvisited:
-        dfsvisited.add(node)
-        for neighbour in graph[node]:
-            if gameOver(neighbour):
-                winningStates.append(neighbour)
-            dfs(neighbour,winningStates)
-
-def dfsSolveBlock(rootnode):
-    
-    print("\nDFS\n")
-    winningStates=[]
-    dfs(root,winningStates)
-    finalState=winningStates[0]
-    getSolutionPath(finalState)
-
-
-def getSolutionPath(node):
-    solution = [(node.getMatrix(),"Final Solution")]
-    currNode=node
-    while True:
-        parent=currNode.getParent()
-        if parent != None:
-            solution.append((parent.getMatrix(),currNode.getLastMove()))
-            currNode=parent
-        else:
-            break
-    for step in reversed(solution):
-        print(step[0]," Next move (from,to):" ,step[1])
-
-"""
-bfsSolveBlock(root)
-
-dfsSolveBlock(root)
-"""
-root.addCost()
-print(root.getCost())
 
