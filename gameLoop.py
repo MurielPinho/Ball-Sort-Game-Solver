@@ -4,6 +4,7 @@ from solver import *
 from pygame.locals import (
     K_ESCAPE,
     K_h,
+    K_s,
     KEYDOWN,
     QUIT,
 )
@@ -20,10 +21,10 @@ purple = (156, 39, 176)
 
 
 levels = [
-    [2,4,[[1,2,1,2],[1,2,1,2],[],[]]],
-    [2,4,[[2,2,2,1],[1,1,1,2],[],[]]],
-    [2,4,[[],[2,1,2,1],[1,2,1,2],[]]],
-    [2,4,[[2,1,2,1],[],[1,2,1,2],[]]]]
+    [3,4,4,[[3,2,1],[2,1,1,2],[1,2,3],[3,3]]],
+    [2,4,4,[[2,2,2,1],[1,1,1,2],[],[]]],
+    [2,4,4,[[],[2,1,2,1],[1,2,1,2],[]]],
+    [2,4,4,[[2,1,2,1],[],[1,2,1,2],[]]]]
     
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
@@ -34,7 +35,8 @@ class Game:
     def __init__(self,level):
         self.n=levels[level][0]
         self.m=levels[level][1]
-        self.arrTotal=levels[level][2]
+        self.ntubes=levels[level][2]
+        self.arrTotal=levels[level][3]
         self.completed = [0]*self.m
         self.tubesArray = [0]*self.m
 
@@ -152,7 +154,13 @@ class gameLoop:
                     self.fromTube = -1 
                     self.toTube = -1 
                     self.showHint = False
-
+    
+    def updateHint(self):
+        self.showHint = True
+        root = Node(None,self.game.arrTotal,self.game.completed,self.game.n,self.game.m,self.game.ntubes,(-1,-1),0,0)
+        graph1 = Graph(root)
+        self.hint = graph1.getHint(root)
+        
 
     def handleEvents(self):
         for event in pygame.event.get():
@@ -162,10 +170,13 @@ class gameLoop:
                 if event.key == K_ESCAPE:
                     return False
                 elif event.key == K_h:
-                    self.showHint = True
-                    root = Node(None,self.game.arrTotal,self.game.completed,(-1,-1),0,1)
-                    finalState=bfs(root)
-                    self.hint = getHint(finalState)
+                    self.updateHint()
+                elif event.key == K_s:
+                    root = Node(None,self.game.arrTotal,self.game.completed,self.game.n,self.game.m,self.game.ntubes,(-1,-1),0,0)
+                    graph1 = Graph(root)
+                    graph1.bfsSolveBlock(root)
+                    graph1.dfsSolveBlock(root)
+
                     
             elif event.type == QUIT:
                 return False
