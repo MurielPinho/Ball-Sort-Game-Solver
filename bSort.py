@@ -1,4 +1,5 @@
 import copy 
+from collections import Counter
 
 class Node:
     """ Constructor """
@@ -49,6 +50,21 @@ class Node:
     def printNode(self):
         print("\nMatrix\n")
         print(self.matrix)
+    
+    """evaluates the state matrix and gives it a cost, lower is better"""
+    def addCost(self):
+        for column in self.matrix:
+            numCount = Counter(column)
+            if len(column) > 1:
+                for common in numCount.most_common(1):
+                    commonNumber = common[0]
+                for i in range(0,len(column)):
+                    if column[i] == commonNumber:
+                        continue
+                    else:
+                        self.cost+=(len(column)-i)
+                        break
+            elif len(column)==1: self.cost += 1
 
 
 """ returns true if a column on a given array is completed with balls of the same colour false otherwise"""
@@ -179,5 +195,11 @@ def getSolutionPath(node):
     for step in reversed(solution):
         print(step[0]," Next move (from,to):" ,step[1])
 
+"""
 bfsSolveBlock(root)
+
 dfsSolveBlock(root)
+"""
+root.addCost()
+print(root.getCost())
+
