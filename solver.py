@@ -183,9 +183,19 @@ class Graph:
         for step in reversed(solution):
             print(step[0]," Next move (from,to):" ,step[1])
     
+    def solve(self,rootnode,solver):
+        if solver == 1:
+            solution = self.bfs(rootnode)
+        elif solver == 2:
+            winningStates=[]
+            self.dfs(rootnode,winningStates)
+            solution=winningStates[0]
+        else:
+            solution = self.bfs(rootnode)
+        return solution
 
-    def getHint(self,rootnode):
-        node=self.bfs(rootnode)
+    def getHint(self,rootnode,solver):
+        node=self.solve(rootnode,solver)
         solution = [(node.getMatrix(),"Final Solution")]
         currNode=node
         while True:
@@ -198,17 +208,14 @@ class Graph:
         
         return solution[-1][1]
 
-
-
-
 arrTotal=[[3,2,1],[2,1,1,2],[1,2,3],[3,3]]
 completed = [0,0,0,0]
 
 root = Node(None,arrTotal,completed,3,4,4,(-1,-1),0,0)
 
-graph1 = Graph(root)
-graph1.bfsSolveBlock(root)
-graph1.dfsSolveBlock(root)
+# graph1 = Graph(root)
+# graph1.bfsSolveBlock(root)
+# graph1.dfsSolveBlock(root)
 
 # root.addCost()
 # print(root.getCost())

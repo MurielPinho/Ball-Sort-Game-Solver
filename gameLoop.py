@@ -79,6 +79,8 @@ class gameLoop:
         self.currentLevel = 0
         self.hint = [0,0]
         self.showHint = False
+        self.solver = 1
+        self.clickable = []
         pygame.init()
   
     def loadNextLevel(self):
@@ -96,7 +98,8 @@ class gameLoop:
         levelText = font.render("%d" % (self.currentLevel + 1), True, black)
         screen.blit(levelText,(137,70))         
         hint = font.render('Hint', True, black)
-        screen.blit(hint,(600,30))
+        button = screen.blit(hint,(600,30))
+        self.clickable.append(button)
 
         if self.showHint:
             hintText = font.render("%d -> %d" % tuple(self.hint), True, black)
@@ -142,6 +145,8 @@ class gameLoop:
 
     def handleMouseClick(self):
         pos=pygame.mouse.get_pos()
+        if self.clickable[0].collidepoint(pos):
+            self.updateHint()
         for tube in self.game.tubesArray:
             if tube.collidepoint(pos):
                 if not self.tubeSelected : 
@@ -159,7 +164,7 @@ class gameLoop:
         self.showHint = True
         root = Node(None,self.game.arrTotal,self.game.completed,self.game.n,self.game.m,self.game.ntubes,(-1,-1),0,0)
         graph1 = Graph(root)
-        self.hint = graph1.getHint(root)
+        self.hint = graph1.getHint(root,self.solver)
         
 
     def handleEvents(self):
