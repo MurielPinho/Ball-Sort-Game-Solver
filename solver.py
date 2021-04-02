@@ -197,13 +197,11 @@ class Graph:
                     self.dfscounter+=1
                     states.push([child,value])
         
-    def depthSolveBlock(self,rootnode):
+    def depthSolveBlock(self,rootnode,limit):
         
-        print("\nDFS\n")
-        winningStates=[]
-        finalState = self.limitedDepthSearch(rootnode,20)
-        
-        print("\nDFS\n","Number of states expanded = ",self.dfscounter)
+        print("\nLimited Depth\n")
+        finalState = self.limitedDepthSearch(rootnode,limit)    
+        print("\nLimited Depth\n","Number of states expanded = ",self.dfscounter)
         self.getSolutionPath(finalState)
     def dfsSolveBlock(self,rootnode):
         
