@@ -26,9 +26,6 @@ class Node:
     def getLastMove(self):
         return self.lastMove
     
-    def getLastPlayedCol(self):
-        return self.lastMove[1]
-    
     """ Returns Node Depth """
     def getDepth(self):
         return self.depth
@@ -101,7 +98,8 @@ class Node:
         childs=[]
         for i in range(0,self.ntubes):
             for j in range(0,self.ntubes):
-                if self.validMove(i,j) and self.getLastPlayedCol() != i:
+                x,y = self.getLastMove()
+                if self.validMove(i,j) and i!=y:
                     newstate = Node(self,copy.deepcopy(self.getMatrix()),copy.deepcopy(self.getArrCompleted()),self.n,self.m,self.ntubes,(i,j),self.getDepth()+1,0)
                     newstate.moveBall(i,j)
                     childs.append(newstate)
@@ -112,47 +110,38 @@ class Graph:
         self.root = root
         self.graph = {}
         self.bfsvisited = [] # List to keep track of visited nodes.
-        self.bfsqueue = [] 
+        self.bfsqueue = []
+        self.bfscounter=0 
+        self.dfscounter=0
         self.dfsvisited = set()
-        self.generateGraph()
-
-    """ generates childs for the root node """
-    def generateGraph(self):
         
-        gameovers=0
-        self.graph[self.root] = self.root.generateChilds()
-    
-        for child in self.graph[self.root]:
-            self.graph[child]=[]
-        
-        while gameovers < 20:
-            for key in list(self.graph):
-                if self.graph[key] == [] and not(key.gameOver()):
-                    self.graph[key] = key.generateChilds()
-                    for childs in self.graph[key]:
-                        self.graph[childs] = []
-                if key.gameOver():
-                    gameovers += 1
 
     def bfs(self,node):
-        self.bfsvisited.append(node)
+        self.graph = {}
+        self.bfsvisited.append(node.getMatrix())
         self.bfsqueue.append(node)
+        
 
         while self.bfsqueue:
-            s = self.bfsqueue.pop(0) 
+            s = self.bfsqueue.pop(0)
+            
+            if s.gameOver():
+                    return s
+            self.graph[s] = s.generateChilds()
 
             for neighbour in self.graph[s]:
-                if neighbour.gameOver():
-                    return neighbour
-                elif neighbour not in self.bfsvisited:
-                    self.bfsvisited.append(neighbour)
+                self.bfscounter+=1
+                if neighbour.getMatrix() not in self.bfsvisited:
+                    self.bfsvisited.append(neighbour.getMatrix())
                     self.bfsqueue.append(neighbour)
 
     def dfs(self,node,winningStates):
         if len(winningStates) == 1:
+            self.dfscounter+=1
             return
         if node not in self.dfsvisited:
             self.dfsvisited.add(node)
+            self.dfscounter+=1
             for neighbour in self.graph[node]:
                 if neighbour.gameOver():
                     winningStates.append(neighbour)
@@ -164,10 +153,12 @@ class Graph:
         winningStates=[]
         self.dfs(rootnode,winningStates)
         finalState=winningStates[0]
+        print("\nDFS\n","Number of states expanded = ",self.dfscounter)
         self.getSolutionPath(finalState)
+        
     def bfsSolveBlock(self,rootnode):
-        print("\nBFS\n")
         finalState=self.bfs(rootnode)
+        print("\nBFS\n","Number of states expanded = ",self.bfscounter)
         self.getSolutionPath(finalState)
 
     def getSolutionPath(self,node):
@@ -186,10 +177,6 @@ class Graph:
     def solve(self,rootnode,solver):
         if solver == 1:
             solution = self.bfs(rootnode)
-        elif solver == 2:
-            winningStates=[]
-            self.dfs(rootnode,winningStates)
-            solution=winningStates[0]
         else:
             solution = self.bfs(rootnode)
         return solution
@@ -213,10 +200,8 @@ completed = [0,0,0,0]
 
 root = Node(None,arrTotal,completed,3,4,4,(-1,-1),0,0)
 
-# graph1 = Graph(root)
-# graph1.bfsSolveBlock(root)
-# graph1.dfsSolveBlock(root)
+graph1 = Graph(root)
 
-# root.addCost()
+
 # print(root.getCost())
 
