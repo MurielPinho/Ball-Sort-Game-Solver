@@ -21,10 +21,19 @@ purple = (156, 39, 176)
 
 
 levels = [
-    [3,4,4,[[3,2,1],[2,1,1,2],[1,2,3],[3,3]]],
-    [2,4,4,[[2,2,2,1],[1,1,1,2],[],[]]],
-    [2,4,4,[[],[2,1,2,1],[1,2,1,2],[]]],
-    [2,4,4,[[2,1,2,1],[],[1,2,1,2],[]]]]
+    [2,4,3,[[2,2,2,1],[1,1,1,2],[]]],
+    [2,4,3,[[],[6,4,6,4],[4,6,4,6]]],
+    [3,4,4,[[2,2,1,3],[1,1,2,3],[2,1,3,3],[]]],
+    [3,4,4,[[6,5,6],[5,5,6,4],[6,4,5,4],[4]]],
+    #[4,4,5,[[3,2,1,3],[2,1,1,2],[1,2,3,4],[4,4],[3,4]]],
+    #[4,4,5,[[3,5,6,5],[3,6,6,5],[6,5,3,1],[1,1],[1,3]]],
+    #[5,4,6,[[3,2,1,3],[2,1,1,2],[1,2,3,4],[4,4],[3,5,5,4],[5,5]]],
+    #[6,4,7,[[1,2,3,4],[6,6],[2,1,1,2],[4,4,6],[3,2,1,3],[3,5,5],[5,5,4,6]]],
+
+    #[3,4,5,[[1,2,3,1],[2,2,3,1],[3,1,2,3],[],[]]],
+    ##[3,4,5,[[1,2,3,3],[1,2,1,2],[3,1,2,3],[],[]]],
+    ###[5,4,7,[[1,2,3,4],[2,1,3,4],[4,5,2,5],[2,4,5,3],[1,1,5,3],[],[]]],
+    ]
     
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
@@ -37,8 +46,8 @@ class Game:
         self.m=levels[level][1]
         self.ntubes=levels[level][2]
         self.arrTotal=levels[level][3]
-        self.completed = [0]*self.m
-        self.tubesArray = [0]*self.m
+        self.completed = [0]*self.ntubes
+        self.tubesArray = [0]*self.ntubes
 
     def fillCompleted(self,col):
         if self.checkCompleted(col):
@@ -79,7 +88,7 @@ class gameLoop:
         self.currentLevel = 0
         self.hint = [0,0]
         self.showHint = False
-        self.solver = 1
+        self.solver = 2
         self.clickable = []
         pygame.init()
   
@@ -105,7 +114,7 @@ class gameLoop:
             hintText = font.render("%d -> %d" % tuple(self.hint), True, black)
             screen.blit(hintText,(590,70))    
 
-        for x  in range(0,self.game.m):
+        for x  in range(0,self.game.ntubes):
             self.drawTube(x)    
        
 
@@ -125,7 +134,7 @@ class gameLoop:
         return color
 
     def drawTube(self,number):
-        center = SCREEN_WIDTH / (self.game.m+1)
+        center = SCREEN_WIDTH / (self.game.ntubes+1)
         tube = pygame.Surface((60, 300)) 
         font = pygame.font.Font('freesansbold.ttf', 40)
         tube.fill(black)
@@ -165,7 +174,12 @@ class gameLoop:
         root = Node(None,self.game.arrTotal,self.game.completed,self.game.n,self.game.m,self.game.ntubes,(-1,-1),0,0)
         graph1 = Graph(root)
         self.hint = graph1.getHint(root,self.solver)
-        
+    
+    def solveAll(self):
+        root = Node(None,self.game.arrTotal,self.game.completed,self.game.n,self.game.m,self.game.ntubes,(-1,-1),0,0)
+        graph1 = Graph(root)
+        graph1.bfsSolveBlock(root)
+        graph1.dfsSolveBlock(root)
 
     def handleEvents(self):
         for event in pygame.event.get():
@@ -177,10 +191,7 @@ class gameLoop:
                 elif event.key == K_h:
                     self.updateHint()
                 elif event.key == K_s:
-                    root = Node(None,self.game.arrTotal,self.game.completed,self.game.n,self.game.m,self.game.ntubes,(-1,-1),0,0)
-                    graph1 = Graph(root)
-                    graph1.bfsSolveBlock(root)
-                    graph1.dfsSolveBlock(root)
+                    self.solveAll()
 
                     
             elif event.type == QUIT:
