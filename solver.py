@@ -1,6 +1,25 @@
 import copy 
 from collections import Counter
 
+class Stack:
+    def __init__(self):
+        self.items = []
+
+    def isEmpty(self):
+        return self.items == []
+
+    def push(self, item):
+        self.items.append(item)
+
+    def pop(self):
+        return self.items.pop()
+
+    def peek(self):
+        return self.items[len(self.items)-1]
+
+    def size(self):
+        return len(self.items)
+
 class Node:
     """ Constructor """
     def __init__(self,parent, matrix, arrCompleted, n, m, ntubes, lastMove, depth, cost):
@@ -135,24 +154,63 @@ class Graph:
                     self.bfsvisited.append(neighbour.getMatrix())
                     self.bfsqueue.append(neighbour)
 
-    def dfs(self,node,winningStates):
-        if len(winningStates) == 1:
-            self.dfscounter+=1
-            return
-        if node not in self.dfsvisited:
-            self.dfsvisited.add(node)
-            self.dfscounter+=1
-            for neighbour in self.graph[node]:
-                if neighbour.gameOver():
-                    winningStates.append(neighbour)
-                self.dfs(neighbour,winningStates)
 
+    def depthFirst(self,initState):
+        visited = []
+        states = Stack()
+        states.push(initState)
+        while not states.isEmpty() :
+
+            visited.append(states.peek().getMatrix())
+            newChildren = states.peek().generateChilds()
+            newChildren.reverse()
+            states.pop()
+
+            for child in newChildren:
+                if child.gameOver():
+                    return child
+                elif child.getMatrix() not in visited:
+                    self.dfscounter+=1
+                    states.push(child)
+
+    def limitedDepthSearch(self, initState,limit):
+        visited = []
+        states = Stack()
+        states.push([initState,0])
+        while not states.isEmpty() :
+
+          
+            value = states.peek()[1] + 1
+            if value > limit:
+                states.pop()
+                continue
+
+            visited.append(states.peek()[0].getMatrix())
+            newChildren = states.peek()[0].generateChilds()
+            newChildren.reverse()
+            states.pop()
+
+            for child in newChildren:
+                if child.gameOver():
+                    return child
+                elif child.getMatrix() not in visited:
+                    self.dfscounter+=1
+                    states.push([child,value])
+        
+    def depthSolveBlock(self,rootnode):
+        
+        print("\nDFS\n")
+        winningStates=[]
+        finalState = self.limitedDepthSearch(rootnode,20)
+        
+        print("\nDFS\n","Number of states expanded = ",self.dfscounter)
+        self.getSolutionPath(finalState)
     def dfsSolveBlock(self,rootnode):
         
         print("\nDFS\n")
         winningStates=[]
-        self.dfs(rootnode,winningStates)
-        finalState=winningStates[0]
+        finalState = self.depthFirst(rootnode)
+        
         print("\nDFS\n","Number of states expanded = ",self.dfscounter)
         self.getSolutionPath(finalState)
         
@@ -195,12 +253,13 @@ class Graph:
         
         return solution[-1][1]
 
-arrTotal=[[3,2,1],[2,1,1,2],[1,2,3],[3,3]]
+arrTotal=[[2,2,2,1],[1,1,1,2],[]]
 completed = [0,0,0,0]
 
-root = Node(None,arrTotal,completed,3,4,4,(-1,-1),0,0)
+root = Node(None,arrTotal,completed,2,4,3,(-1,-1),0,0)
 
 graph1 = Graph(root)
+graph1.dfsSolveBlock(root)
 
 
 # print(root.getCost())
