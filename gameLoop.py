@@ -5,6 +5,8 @@ from pygame.locals import (
     K_ESCAPE,
     K_h,
     K_s,
+    K_d,
+    K_r,
     KEYDOWN,
     QUIT,
 )
@@ -93,6 +95,12 @@ class gameLoop:
   
     def loadNextLevel(self):
         self.currentLevel = self.currentLevel + 1 
+        self.game = Game(self.currentLevel)
+        self.tubeSelected = False
+        self.fromTube = -1
+        self.toTube = -1
+    
+    def resetLevel(self):
         self.game = Game(self.currentLevel)
         self.tubeSelected = False
         self.fromTube = -1
@@ -190,6 +198,13 @@ class gameLoop:
                     self.updateHint()
                 elif event.key == K_s:
                     self.solveAll()
+                # elif event.key == K_r:
+                #     self.resetLevel()
+                elif event.key == K_d:
+                    if self.currentLevel < len(levels)-1:
+                        self.loadNextLevel()
+                    else:
+                        return False
 
                     
             elif event.type == QUIT:
