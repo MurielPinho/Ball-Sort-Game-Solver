@@ -6,7 +6,6 @@ from pygame.locals import (
     K_h,
     K_s,
     K_d,
-    K_r,
     KEYDOWN,
     QUIT,
 )
@@ -24,16 +23,15 @@ purple = (156, 39, 176)
 
 levels = [
     #[2,4,3,[[2,2,2,1],[1,1,1,2],[]]],
-    #[3,4,4,[[2,2,1,3],[1,1,2,3],[2,1,3,3],[]]],
+    [3,4,4,[[2,2,1,3],[1,1,2,3],[2,1,3,3],[]]],
     #[3,4,4,[[6,5,6],[5,5,6,4],[6,4,5,4],[4]]],
+    #[3,4,5,[[1,2,3,1],[2,2,3,1],[3,1,2,3],[],[]]],
+    #[3,4,5,[[1,2,3,3],[1,2,1,2],[3,1,2,3],[],[]]],
     #[4,4,5,[[3,2,1,3],[2,1,1,2],[1,2,3,4],[4,4],[3,4]]],
     #[4,4,5,[[3,5,6,5],[3,6,6,5],[6,5,3,1],[1,1],[1,3]]],
     #[5,4,6,[[3,2,1,3],[2,1,1,2],[1,2,3,4],[4,4],[3,5,5,4],[5,5]]],
-    #[6,4,7,[[1,2,3,4],[6,6],[2,1,1,2],[4,4,6],[3,2,1,3],[3,5,5],[5,5,4,6]]],
-
-    #[3,4,5,[[1,2,3,1],[2,2,3,1],[3,1,2,3],[],[]]],
-    #[3,4,5,[[1,2,3,3],[1,2,1,2],[3,1,2,3],[],[]]],
-    [5,4,7,[[1,2,3,4],[2,1,3,4],[4,5,2,5],[2,4,5,3],[1,1,5,3],[],[]]] # 19 moves
+    #[6,4,7,[[1,2,3,4],[6,6],[2,1,1,2],[4,4,6],[3,2,1,3],[3,5,5],[5,5,4,6]]],  
+    #[5,4,7,[[1,2,3,4],[2,1,3,4],[4,5,2,5],[2,4,5,3],[1,1,5,3],[],[]]] 
     ]
     
 SCREEN_WIDTH = 800
@@ -89,18 +87,12 @@ class gameLoop:
         self.currentLevel = 0
         self.hint = [0,0]
         self.showHint = False
-        self.solver = 2
+        self.solver = 1
         self.clickable = []
         pygame.init()
   
     def loadNextLevel(self):
         self.currentLevel = self.currentLevel + 1 
-        self.game = Game(self.currentLevel)
-        self.tubeSelected = False
-        self.fromTube = -1
-        self.toTube = -1
-    
-    def resetLevel(self):
         self.game = Game(self.currentLevel)
         self.tubeSelected = False
         self.fromTube = -1
@@ -185,8 +177,14 @@ class gameLoop:
     def solveAll(self):
         root = Node(None,self.game.arrTotal,self.game.completed,self.game.n,self.game.m,self.game.ntubes,(-1,-1),0,0)
         graph1 = Graph(root)
-        #graph1.bfsSolveBlock(root)
-        graph1.dfsSolveBlock(root)
+        graph1.breadthSolveBlock(root)
+        graph1.depthSolveBlock(root)
+        graph1.limitedDepthSolveBlock(root,19)
+        graph1.iterativeSolveBlock(root,10)
+        graph1.uniformSolveBlock(root)
+        graph1.greedySolveBlock(root)
+        graph1.aStarSolveBlock(root)
+
 
     def handleEvents(self):
         for event in pygame.event.get():
@@ -199,8 +197,6 @@ class gameLoop:
                     self.updateHint()
                 elif event.key == K_s:
                     self.solveAll()
-                # elif event.key == K_r:
-                #     self.resetLevel()
                 elif event.key == K_d:
                     if self.currentLevel < len(levels)-1:
                         self.loadNextLevel()

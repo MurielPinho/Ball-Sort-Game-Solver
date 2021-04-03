@@ -1,5 +1,6 @@
 import copy 
 from collections import Counter
+from operator import itemgetter
 
 class Stack:
     def __init__(self):
@@ -22,13 +23,13 @@ class Stack:
 
 class Node:
     """ Constructor """
-    def __init__(self,parent, matrix, arrCompleted, n, m, ntubes, lastMove, depth, cost):
+    def __init__(self,parent, matrix, arrCompleted, n, m, ntubes, lastMove, depth, evaluatedValue):
         self.parent = parent
         self.matrix = matrix
         self.arrCompleted = arrCompleted
         self.lastMove = lastMove
         self.depth = depth
-        self.cost = cost
+        self.evaluatedValue = evaluatedValue
         self.n = n
         self.m = m
         self.ntubes = ntubes
@@ -43,15 +44,15 @@ class Node:
     
     """ Returns Node's parent move """
     def getLastMove(self):
-        return self.lastMove
+        return self.lastMove[1]
     
     """ Returns Node Depth """
     def getDepth(self):
         return self.depth
     
     """ Returns Node Cost """
-    def getCost(self):
-        return self.cost
+    def getEvaluatedValue(self):
+        return self.evaluatedValue
     
     """ Returns Node parent """
     def getParent(self):
@@ -71,7 +72,7 @@ class Node:
         print(self.matrix)
     
     """evaluates the state matrix and gives it a cost, lower is better"""
-    def addCost(self):
+    def evaluateState(self):
         for column in self.matrix:
             numCount = Counter(column)
             if len(column) > 1:
@@ -81,9 +82,10 @@ class Node:
                     if column[i] == commonNumber:
                         continue
                     else:
-                        self.cost+=(len(column)-i)
+                        self.evaluatedValue+=((len(column)-i)*1)
                         break
-            elif len(column)==1: self.cost += 1
+            elif len(column)==1: self.evaluatedValue += 1
+
     """returns true if a game is over, false otherwise"""
 
     def gameOver(self):
@@ -117,52 +119,52 @@ class Node:
         childs=[]
         for i in range(0,self.ntubes):
             for j in range(0,self.ntubes):
-                x,y = self.getLastMove()
+                y = self.getLastMove()
                 if self.validMove(i,j) and i!=y:
                     newstate = Node(self,copy.deepcopy(self.getMatrix()),copy.deepcopy(self.getArrCompleted()),self.n,self.m,self.ntubes,(i,j),self.getDepth()+1,0)
                     newstate.moveBall(i,j)
+                    newstate.evaluateState()
                     childs.append(newstate)
         return childs
 
 class Graph:
     def __init__(self,root):
         self.root = root
-        self.graph = {}
-        self.bfsvisited = [] # List to keep track of visited nodes.
-        self.bfsqueue = []
-        self.bfscounter=0 
-        self.dfscounter=0
-        self.dfsvisited = set()
+        self.statesCounter=1 
         
 
-    def bfs(self,node):
-        self.graph = {}
-        self.bfsvisited.append(node.getMatrix())
-        self.bfsqueue.append(node)
+    def breadthFirst(self,node):
         
+        visited = []
+        states = []
+        states.append(node)
+        visited.append(node.getMatrix())
+        self.statesCounter = 1
 
-        while self.bfsqueue:
-            s = self.bfsqueue.pop(0)
-            
-            if s.gameOver():
-                    return s
-            self.graph[s] = s.generateChilds()
+        while states:
+            state=states.pop(0)     
+            children = state.generateChilds()
+            for child in children:         
+                if child.getMatrix() not in visited:
+                    if child.gameOver():
+                        return child
+                    else:
+                        self.statesCounter += 1
+                        visited.append(child.getMatrix())
+                        states.append(child)
 
-            for neighbour in self.graph[s]:
-                self.bfscounter+=1
-                if neighbour.getMatrix() not in self.bfsvisited:
-                    self.bfsvisited.append(neighbour.getMatrix())
-                    self.bfsqueue.append(neighbour)
-
+    
 
     def depthFirst(self,initState):
         visited = []
-        states = Stack()
-        states.push(initState)
-        while not states.isEmpty() :
+        states = []
+        states.append(initState)
+        self.statesCounter = 1
 
-            visited.append(states.peek().getMatrix())
-            newChildren = states.peek().generateChilds()
+        while not len(states) == 0 :
+
+            visited.append(states[-1].getMatrix())
+            newChildren = states[-1].generateChilds()
             newChildren.reverse()
             states.pop()
 
@@ -170,23 +172,25 @@ class Graph:
                 if child.gameOver():
                     return child
                 elif child.getMatrix() not in visited:
-                    self.dfscounter+=1
-                    states.push(child)
+                    self.statesCounter+=1
+                    states.append(child)
 
     def limitedDepthSearch(self, initState,limit):
         visited = []
-        states = Stack()
-        states.push([initState,0])
-        while not states.isEmpty() :
+        states = []
+        states.append([initState,0])
+        self.statesCounter = 1
+
+        while not len(states) == 0 :
 
           
-            value = states.peek()[1] + 1
+            value = states[-1][1] + 1
             if value > limit:
                 states.pop()
                 continue
 
-            visited.append(states.peek()[0].getMatrix())
-            newChildren = states.peek()[0].generateChilds()
+            visited.append(states[-1][0].getMatrix())
+            newChildren = states[-1][0].generateChilds()
             newChildren.reverse()
             states.pop()
 
@@ -194,27 +198,155 @@ class Graph:
                 if child.gameOver():
                     return child
                 elif child.getMatrix() not in visited:
-                    self.dfscounter+=1
-                    states.push([child,value])
+                    self.statesCounter+=1
+                    states.append([child,value])
+
+    def progressiveDeepening(self, initState, progress):
+
+        currentProgress = progress
+        visited = []
+        toBeChecked = []
+        states = []
+        states.append([initState, 0])
+        self.statesCounter = 1
+
+
+        while True:
+
+            if len(states) == 0:
+                currentProgress += progress
+                toBeChecked.reverse()
+                for i in toBeChecked:
+                    states.append(i)
+                toBeChecked = []
+
+            if states[-1][1] == currentProgress and states[-1][1] != 0:
+                toBeChecked.append(states[-1])
+                states.pop()
+                continue
+
+            visited.append(states[-1][0].getMatrix())
+            newChildren = states[-1][0].generateChilds()
+            newChildren.reverse()
+            value = states[-1][1] + 1
+            states.pop()
+
+            for newChild in newChildren:
+
+                if newChild.gameOver():
+                    return newChild
+                elif newChild.getMatrix() not in visited:
+                    self.statesCounter+=1
+                    states.append([newChild, value])
+
+    def uniformCostSearch(self, initState):
+
+        visited = []
+        states = []
+        states.append([initState, initState.getEvaluatedValue()])
+        visited.append(initState.getMatrix())
+        self.statesCounter = 1
+
+        while states:
+            states.sort(key=lambda x: x[1])
+            state = states.pop(0)
+            children = state[0].generateChilds()
+            for child in children:
+                if child.getMatrix() not in visited:
+                    if child.gameOver():
+                        return child
+                    else:
+                        self.statesCounter += 1
+                        visited.append(child.getMatrix())
+                        states.append([child,child.getDepth()])
+
+    def greedySearch(self, initState):
+
+        visited = []
+        states = []
+        states.append([initState, initState.getEvaluatedValue()])
+        visited.append(initState.getMatrix())
+        self.statesCounter = 1
+
+        while states:
+            states.sort(key=lambda x:x[1])
+            
+            state = states.pop(0)
+            
+            children = state[0].generateChilds()
+            for child in children:
+                if child.getMatrix() not in visited:
+                    if child.gameOver():
+                        return child
+                    else:
+                        self.statesCounter += 1
+                        visited.append(child.getMatrix())
+                        states.append([child,child.getEvaluatedValue()])
+    
+    def aStarSearch(self, initState):
+
+        visited = []
+        states = []
+        states.append([initState, initState.getEvaluatedValue()+initState.getDepth()])
+        visited.append(initState.getMatrix())
+        self.statesCounter = 1
+
+        while states:
+            states.sort(key=lambda x: x[1])
+            state = states.pop(0)
+            children = state[0].generateChilds()
+            for child in children:
+                if child.getMatrix() not in visited:
+                    if child.gameOver():
+                        return child
+                    else:
+                        self.statesCounter += 1
+                        visited.append(child.getMatrix())
+                        states.append(
+                            [child, (child.getEvaluatedValue()*5)+child.getDepth()])
+                        
+
         
-    def depthSolveBlock(self,rootnode,limit):
-        
-        print("\nLimited Depth\n")
+    def limitedDepthSolveBlock(self,rootnode,limit):
         finalState = self.limitedDepthSearch(rootnode,limit)    
-        print("\nLimited Depth\n","Number of states expanded = ",self.dfscounter)
+        print("\nLimited Depth\n", "Number of states expanded -> ",
+              self.statesCounter, " \n Number of moves -> ", finalState.getDepth())
         self.getSolutionPath(finalState)
-    def dfsSolveBlock(self,rootnode):
-        
-        print("\nDFS\n")
-        winningStates=[]
+
+    def iterativeSolveBlock(self,rootnode,progress):
+        finalState = self.progressiveDeepening(rootnode,progress)    
+        print("\nIterative Deepening\n", "Number of states expanded -> ",
+              self.statesCounter, " \n Number of moves -> ", finalState.getDepth())
+        self.getSolutionPath(finalState)
+
+    def depthSolveBlock(self,rootnode):
         finalState = self.depthFirst(rootnode)
-        
-        print("\nDFS\n","Number of states expanded = ",self.dfscounter)
+        print("\nDepth First Search\n", "Number of states expanded -> ",
+              self.statesCounter, " \n Number of moves -> ", finalState.getDepth())
         self.getSolutionPath(finalState)
         
-    def bfsSolveBlock(self,rootnode):
-        finalState=self.bfs(rootnode)
-        print("\nBFS\n","Number of states expanded = ",self.bfscounter)
+    def breadthSolveBlock(self,rootnode):
+        finalState=self.breadthFirst(rootnode)
+        print("\nBreadth First Search\n", "Number of states expanded -> ",
+              self.statesCounter, " \n Number of moves -> ", finalState.getDepth())
+        self.getSolutionPath(finalState)
+    
+    def uniformSolveBlock(self,rootnode):
+        finalState = self.uniformCostSearch(rootnode)
+        print("\nUniform Cost Search\n", "Number of states expanded -> ",
+              self.statesCounter, " \n Number of moves -> ", finalState.getDepth())
+        self.getSolutionPath(finalState)
+
+    def greedySolveBlock(self,rootnode):
+        finalState = self.greedySearch(rootnode)
+        print("\nGreedy Search\n", "Number of states expanded -> ",
+              self.statesCounter, " \n Number of moves -> ", finalState.getDepth())
+        self.getSolutionPath(finalState)
+
+    def aStarSolveBlock(self,rootnode):
+        finalState = self.aStarSearch(rootnode)
+        print("\nA* Search\n", "Number of states expanded -> ",
+              self.statesCounter, " \n Number of moves -> ", finalState.getDepth())
         self.getSolutionPath(finalState)
 
     def getSolutionPath(self,node):
@@ -227,14 +359,18 @@ class Graph:
                 currNode=parent
             else:
                 break
-        for step in reversed(solution):
-            print(step[0]," Next move (from,to):" ,step[1])
+        # for step in reversed(solution):
+        #     print(step[0]," Next move (from,to):" ,step[1])
     
     def solve(self,rootnode,solver):
         if solver == 1:
-            solution = self.bfs(rootnode)
+            solution = self.aStarSearch(rootnode)
+        if solver == 2:
+            solution = self.greedySearch(rootnode)
+        if solver == 3:
+            solution = self.depthFirst(rootnode)
         else:
-            solution = self.bfs(rootnode)
+            solution = self.aStarSearch(rootnode)
         return solution
 
     def getHint(self,rootnode,solver):
@@ -251,14 +387,4 @@ class Graph:
         
         return solution[-1][1]
 
-arrTotal=[[2,2,2,1],[1,1,1,2],[]]
-completed = [0,0,0,0]
-
-root = Node(None,arrTotal,completed,2,4,3,(-1,-1),0,0)
-
-graph1 = Graph(root)
-graph1.dfsSolveBlock(root)
-
-
-# print(root.getCost())
 
