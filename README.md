@@ -10,6 +10,7 @@ In order to move a ball you need to click on the tube where you want the ball to
 ### In Game Keyboard commands
 - **D** - Skip Level
 - **H** - Ask for hint
+- **S** - Solve with every algorithm . Displays on console All the algotithms information for that level .
 - **Auto Solve commands**
   - **A** or **1** - Auto solve (default : A*)
   - **2** - Greedy Search
