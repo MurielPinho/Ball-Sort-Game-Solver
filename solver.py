@@ -24,7 +24,7 @@ class Node:
     
     """ Returns Node's parent move """
     def getLastMove(self):
-        return self.lastMove[1]
+        return self.lastMove
     
     """ Returns Node Depth """
     def getDepth(self):
@@ -38,7 +38,7 @@ class Node:
     def getParent(self):
         return self.parent
     
-    """ moves a ball in nodes matrix """
+    """ moves  a ball in nodes matrix """
     def moveBall(self,fromCol,toCol):
         num = self.matrix[fromCol].pop(-1)
         self.matrix[toCol].append(num)
@@ -100,7 +100,7 @@ class Node:
         for i in range(0,self.ntubes):
             for j in range(0,self.ntubes):
                 y = self.getLastMove()
-                if self.validMove(i,j) and i!=y:
+                if self.validMove(i,j) and i!=y[1]:
                     newstate = Node(self,copy.deepcopy(self.getMatrix()),copy.deepcopy(self.getArrCompleted()),self.n,self.m,self.ntubes,(i,j),self.getDepth()+1,0)
                     newstate.moveBall(i,j)
                     newstate.evaluateState()
@@ -289,44 +289,44 @@ class Graph:
         
     def limitedDepthSolveBlock(self,rootnode,limit):
         finalState = self.limitedDepthSearch(rootnode,limit)    
-        print("\nLimited Depth\n", "Number of states expanded -> ",
-              self.statesCounter, " \n Number of moves -> ", finalState.getDepth())
+        print("\nLimited Depth\n", "Number of states -> ",
+              self.statesCounter, " \n Number of moves  -> ", finalState.getDepth())
         self.getSolutionPath(finalState)
 
     def iterativeSolveBlock(self,rootnode,progress):
         finalState = self.progressiveDeepening(rootnode,progress)    
-        print("\nIterative Deepening\n", "Number of states expanded -> ",
-              self.statesCounter, " \n Number of moves -> ", finalState.getDepth())
+        print("\nIterative Deepening\n", "Number of states -> ",
+              self.statesCounter, " \n Number of moves  -> ", finalState.getDepth())
         self.getSolutionPath(finalState)
 
     def depthSolveBlock(self,rootnode):
         finalState = self.depthFirst(rootnode)
-        print("\nDepth First Search\n", "Number of states expanded -> ",
-              self.statesCounter, " \n Number of moves -> ", finalState.getDepth())
+        print("\nDepth First Search\n", "Number of states -> ",
+              self.statesCounter, " \n Number of moves  -> ", finalState.getDepth())
         self.getSolutionPath(finalState)
         
     def breadthSolveBlock(self,rootnode):
         finalState=self.breadthFirst(rootnode)
-        print("\nBreadth First Search\n", "Number of states expanded -> ",
-              self.statesCounter, " \n Number of moves -> ", finalState.getDepth())
+        print("\nBreadth First Search\n", "Number of states -> ",
+              self.statesCounter, " \n Number of moves  -> ", finalState.getDepth())
         self.getSolutionPath(finalState)
     
     def uniformSolveBlock(self,rootnode):
         finalState = self.uniformCostSearch(rootnode)
-        print("\nUniform Cost Search\n", "Number of states expanded -> ",
-              self.statesCounter, " \n Number of moves -> ", finalState.getDepth())
+        print("\nUniform Cost Search\n", "Number of states -> ",
+              self.statesCounter, " \n Number of moves  -> ", finalState.getDepth())
         self.getSolutionPath(finalState)
 
     def greedySolveBlock(self,rootnode):
         finalState = self.greedySearch(rootnode)
-        print("\nGreedy Search\n", "Number of states expanded -> ",
-              self.statesCounter, " \n Number of moves -> ", finalState.getDepth())
+        print("\nGreedy Search\n", "Number of states -> ",
+              self.statesCounter, " \n Number of moves  -> ", finalState.getDepth())
         self.getSolutionPath(finalState)
 
     def aStarSolveBlock(self,rootnode):
         finalState = self.aStarSearch(rootnode)
-        print("\nA* Search\n", "Number of states expanded -> ",
-              self.statesCounter, " \n Number of moves -> ", finalState.getDepth())
+        print("\nA* Search\n", "Number of states -> ",
+              self.statesCounter, " \n Number of moves  -> ", finalState.getDepth())
         self.getSolutionPath(finalState)
 
     def getSolutionPath(self,node):
@@ -364,7 +364,6 @@ class Graph:
                 currNode=parent
             else:
                 break
-        
         return solution[-1][1]
 
 
