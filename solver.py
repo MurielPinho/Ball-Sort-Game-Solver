@@ -1,4 +1,5 @@
-import copy 
+import copy
+import time
 from collections import Counter
 
 class Node:
@@ -110,7 +111,9 @@ class Node:
 class Graph:
     def __init__(self,root):
         self.root = root
-        self.statesCounter=1 
+        self.statesCounter=1
+        self.startTime = 0
+        self.endTime = 0
         
 
     def breadthFirst(self,node):
@@ -140,6 +143,7 @@ class Graph:
         states = []
         states.append(initState)
         self.statesCounter = 1
+        self.startTime = time.time();
 
         while not len(states) == 0 :
 
@@ -150,6 +154,7 @@ class Graph:
 
             for child in newChildren:
                 if child.gameOver():
+                    self.endTime = time.time();
                     return child
                 elif child.getMatrix() not in visited:
                     self.statesCounter+=1
@@ -160,6 +165,7 @@ class Graph:
         states = []
         states.append([initState,0])
         self.statesCounter = 1
+        self.startTime = time.time()
 
         while not len(states) == 0 :
 
@@ -176,6 +182,7 @@ class Graph:
 
             for child in newChildren:
                 if child.gameOver():
+                    self.endTime = time.time()
                     return child
                 elif child.getMatrix() not in visited:
                     self.statesCounter+=1
@@ -189,6 +196,7 @@ class Graph:
         states = []
         states.append([initState, 0])
         self.statesCounter = 1
+        self.startTime = time.time()
 
 
         while True:
@@ -214,6 +222,7 @@ class Graph:
             for newChild in newChildren:
 
                 if newChild.gameOver():
+                    self.endTime = time.time()
                     return newChild
                 elif newChild.getMatrix() not in visited:
                     self.statesCounter+=1
@@ -226,6 +235,7 @@ class Graph:
         states.append([initState, initState.getEvaluatedValue()])
         visited.append(initState.getMatrix())
         self.statesCounter = 1
+        self.startTime = time.time()
 
         while states:
             states.sort(key=lambda x: x[1])
@@ -234,6 +244,7 @@ class Graph:
             for child in children:
                 if child.getMatrix() not in visited:
                     if child.gameOver():
+                        self.endTime = time.time()
                         return child
                     else:
                         self.statesCounter += 1
@@ -247,6 +258,7 @@ class Graph:
         states.append([initState, initState.getEvaluatedValue()])
         visited.append(initState.getMatrix())
         self.statesCounter = 1
+        self.startTime = time.time()
 
         while states:
             states.sort(key=lambda x:x[1])
@@ -257,6 +269,7 @@ class Graph:
             for child in children:
                 if child.getMatrix() not in visited:
                     if child.gameOver():
+                        self.endTime = time.time()
                         return child
                     else:
                         self.statesCounter += 1
@@ -270,6 +283,7 @@ class Graph:
         states.append([initState, initState.getEvaluatedValue()+initState.getDepth()])
         visited.append(initState.getMatrix())
         self.statesCounter = 1
+        self.startTime = time.time()
 
         while states:
             states.sort(key=lambda x: x[1])
@@ -278,6 +292,7 @@ class Graph:
             for child in children:
                 if child.getMatrix() not in visited:
                     if child.gameOver():
+                        self.endTime = time.time()
                         return child
                     else:
                         self.statesCounter += 1
@@ -296,38 +311,45 @@ class Graph:
     def iterativeSolveBlock(self,rootnode,progress):
         finalState = self.progressiveDeepening(rootnode,progress)    
         print("\nIterative Deepening\n", "Number of states -> ",
-              self.statesCounter, " \n Number of moves  -> ", finalState.getDepth())
+              self.statesCounter, " \n Number of moves  -> ", finalState.getDepth(),
+              "\nElapsed Time : ", format(self.endTime - self.startTime,".5f"), " seconds")
         self.getSolutionPath(finalState)
 
     def depthSolveBlock(self,rootnode):
         finalState = self.depthFirst(rootnode)
         print("\nDepth First Search\n", "Number of states -> ",
-              self.statesCounter, " \n Number of moves  -> ", finalState.getDepth())
+              self.statesCounter, " \n Number of moves  -> ", finalState.getDepth(),
+              "\nElapsed Time : ", format(self.endTime - self.startTime,".5f") , " seconds")
         self.getSolutionPath(finalState)
         
     def breadthSolveBlock(self,rootnode):
         finalState=self.breadthFirst(rootnode)
         print("\nBreadth First Search\n", "Number of states -> ",
-              self.statesCounter, " \n Number of moves  -> ", finalState.getDepth())
+              self.statesCounter, " \n Number of moves  -> ", finalState.getDepth(),
+              "\nElapsed Time : ", format(self.endTime - self.startTime,".5f"), " seconds")
         self.getSolutionPath(finalState)
     
     def uniformSolveBlock(self,rootnode):
         finalState = self.uniformCostSearch(rootnode)
         print("\nUniform Cost Search\n", "Number of states -> ",
-              self.statesCounter, " \n Number of moves  -> ", finalState.getDepth())
+              self.statesCounter, " \n Number of moves  -> ", finalState.getDepth(),
+              "\nElapsed Time : ", format(self.endTime - self.startTime,".5f"), " seconds")
         self.getSolutionPath(finalState)
 
     def greedySolveBlock(self,rootnode):
         finalState = self.greedySearch(rootnode)
         print("\nGreedy Search\n", "Number of states -> ",
-              self.statesCounter, " \n Number of moves  -> ", finalState.getDepth())
+              self.statesCounter, " \n Number of moves  -> ", finalState.getDepth(),
+              "\nElapsed Time : ", format(self.endTime - self.startTime,".5f"), " seconds")
         self.getSolutionPath(finalState)
 
     def aStarSolveBlock(self,rootnode):
         finalState = self.aStarSearch(rootnode)
         print("\nA* Search\n", "Number of states -> ",
-              self.statesCounter, " \n Number of moves  -> ", finalState.getDepth())
-        self.getSolutionPath(finalState)
+              self.statesCounter, " \n Number of moves  -> ", finalState.getDepth(),
+              "\nElapsed Time : ", format(self.endTime - self.startTime,".5f"), " seconds")
+        solution = self.getSolutionPath(finalState)
+
 
     def getSolutionPath(self,node):
         solution = [(node.getMatrix(),"Final Solution")]
@@ -339,6 +361,7 @@ class Graph:
                 currNode=parent
             else:
                 break
+            return solution
         # for step in reversed(solution):
         #     print(step[0]," Next move (from,to):" ,step[1])
     
@@ -353,17 +376,35 @@ class Graph:
             solution = self.aStarSearch(rootnode)
         return solution
 
-    def getHint(self,rootnode,solver):
-        node=self.solve(rootnode,solver)
-        solution = [(node.getMatrix(),"Final Solution")]
-        currNode=node
+    def getHint(self, rootnode, solver):
+        node = self.solve(rootnode, solver)
+        solution = [(node.getMatrix(), "Final Solution")]
+        currNode = node
         while True:
-            parent=currNode.getParent()
+            parent = currNode.getParent()
             if parent != None:
-                solution.append((parent.getMatrix(),currNode.getLastMove()))
-                currNode=parent
+                solution.append((parent.getMatrix(), currNode.getLastMove()))
+                currNode = parent
             else:
                 break
         return solution[-1][1]
+
+    def getAutoSolve(self, rootnode, solver):
+        node = self.solve(rootnode, solver)
+        solution = []
+        currNode = node
+        while True:
+            parent = currNode.getParent()
+            if parent != None:
+                solution.append((parent.getMatrix(), currNode.getLastMove()))
+                currNode = parent
+            else:
+                break
+        return solution
+
+
+
+
+
 
 
