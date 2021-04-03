@@ -64,7 +64,7 @@ class Node:
                     if column[i] == commonNumber:
                         continue
                     else:
-                        self.evaluatedValue += ((len(column) - i) * 1)
+                        self.evaluatedValue += (len(column) - i)
                         break
             elif len(column) == 1:
                 self.evaluatedValue += 1
