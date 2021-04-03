@@ -4,9 +4,14 @@ from collections import Counter
 
 
 class Node:
+<<<<<<< HEAD
     """ Constructor """
 
     def __init__(self, parent, matrix, arrCompleted, n, m, ntubes, lastMove, depth, evaluatedValue):
+=======
+   #Constructor 
+    def __init__(self,parent, matrix, arrCompleted, n, m, ntubes, lastMove, depth, evaluatedValue):
+>>>>>>> 127be939caa535ca1867f1d08648c779391b95ed
         self.parent = parent
         self.matrix = matrix
         self.arrCompleted = arrCompleted
@@ -17,6 +22,7 @@ class Node:
         self.m = m
         self.ntubes = ntubes
 
+<<<<<<< HEAD
     """ Returns Node matrix """
 
     def getMatrix(self):
@@ -50,12 +56,41 @@ class Node:
     """ moves  a ball in nodes matrix """
 
     def moveBall(self, fromCol, toCol):
+=======
+    #Returns Node matrix
+    def getMatrix(self):
+        return self.matrix
+    
+    #Returns Node completed array 
+    def getArrCompleted(self):
+        return self.arrCompleted
+    
+    #Returns Node's parent move 
+    def getLastMove(self):
+        return self.lastMove
+    
+    #Returns Node Depth 
+    def getDepth(self):
+        return self.depth
+    
+    #Returns Node Cost
+    def getEvaluatedValue(self):
+        return self.evaluatedValue
+    
+    #Returns Node parent
+    def getParent(self):
+        return self.parent
+    
+    #moves  a ball in nodes matrix
+    def moveBall(self,fromCol,toCol):
+>>>>>>> 127be939caa535ca1867f1d08648c779391b95ed
         num = self.matrix[fromCol].pop(-1)
         self.matrix[toCol].append(num)
         if self.checkCompleted(self.matrix, toCol):
             self.arrCompleted[toCol] = 1
         self.lastMove = (fromCol, toCol)
 
+<<<<<<< HEAD
     """ Prints Node matrix """
 
     def printNode(self):
@@ -64,6 +99,14 @@ class Node:
 
     """evaluates the state matrix and gives it a cost, lower is better"""
 
+=======
+    #Prints Node matrix
+    def printNode(self):
+        print("\nMatrix\n")
+        print(self.matrix)
+    
+    #evaluates the state based on expected number of moves needed to reach objective state -> smaller eval is better
+>>>>>>> 127be939caa535ca1867f1d08648c779391b95ed
     def evaluateState(self):
         for column in self.matrix:
             numCount = Counter(column)
@@ -79,6 +122,7 @@ class Node:
             elif len(column) == 1:
                 self.evaluatedValue += 1
 
+ #evaluates the state based on number of same coloured balls from bottom to top in each column -> bigger eval is better
     def evaluateState2(self):
         for column in self.matrix:
             if len(column) == 0:
@@ -91,7 +135,7 @@ class Node:
                 else:
                     break
 
-    """returns true if a game is over, false otherwise"""
+    #returns true if a game is over, false otherwise
 
     def gameOver(self):
         if self.getArrCompleted().count(1) == self.n:
@@ -99,7 +143,7 @@ class Node:
         else:
             return False
 
-    """ returns true if a column on a given array is completed with balls of the same colour false otherwise"""
+    #returns true if a column on a given array is completed with balls of the same colour false otherwise
 
     def checkCompleted(self, matrix, col):
         if len(set(matrix[col])) == 1 and len(matrix[col]) == self.m:
@@ -107,7 +151,7 @@ class Node:
         else:
             return False
 
-    """returns true if a given toCol fromCol move is possible given a matrix and its completed array"""
+    #returns true if a given toCol fromCol move is possible given a matrix and its completed array
 
     def validMove(self, fromCol, toCol):
         if len(self.matrix[fromCol]) > 0 and len(self.matrix[toCol]) < self.m and fromCol != toCol and not (
@@ -121,12 +165,20 @@ class Node:
         else:
             return False
 
+<<<<<<< HEAD
     """returns an array with all the possible child states from a given parent node"""
 
     def generateChilds(self, heuristic):
         childs = []
         for i in range(0, self.ntubes):
             for j in range(0, self.ntubes):
+=======
+    #returns an array with all the possible child states from a given parent node
+    def generateChilds(self,heuristic):
+        childs=[]
+        for i in range(0,self.ntubes):
+            for j in range(0,self.ntubes):
+>>>>>>> 127be939caa535ca1867f1d08648c779391b95ed
                 y = self.getLastMove()
                 if self.validMove(i, j) and i != y[1]:
                     newstate = Node(self, copy.deepcopy(self.getMatrix()), copy.deepcopy(self.getArrCompleted()),
@@ -146,24 +198,37 @@ class Graph:
         self.statesCounter = 1
         self.startTime = 0
         self.endTime = 0
+<<<<<<< HEAD
 
     def breadthFirst(self, node):
 
+=======
+        
+#breadth first search algoritm
+    def breadthFirst(self,node):
+        
+>>>>>>> 127be939caa535ca1867f1d08648c779391b95ed
         visited = []
         states = []
-        states.append(node)
-        visited.append(node.getMatrix())
+        states.append(node) #append root
+        visited.append(node.getMatrix()) #append root matrix state 
         self.statesCounter = 1
         self.startTime = time.time()
 
         while states:
+<<<<<<< HEAD
             state = states.pop(0)
             children = state.generateChilds(None)
             for child in children:
+=======
+            state=states.pop(0)   #pops first element in the queue
+            children = state.generateChilds(None) #generates it's possible child states
+            for child in children:         
+>>>>>>> 127be939caa535ca1867f1d08648c779391b95ed
                 if child.getMatrix() not in visited:
                     if child.gameOver():
                         self.endTime = time.time()
-                        return child
+                        return child  #found solution
                     else:
                         self.statesCounter += 1
                         visited.append(child.getMatrix())
@@ -172,18 +237,18 @@ class Graph:
     def depthFirst(self, initState):
         visited = []
         states = []
-        states.append(initState)
+        states.append(initState) #append root
         self.statesCounter = 1
         self.startTime = time.time();
 
         while not len(states) == 0:
 
             visited.append(states[-1].getMatrix())
-            newChildren = states[-1].generateChilds(None)
-            newChildren.reverse()
+            children = states[-1].generateChilds(None)
+            children.reverse()
             states.pop()
 
-            for child in newChildren:
+            for child in children:
                 if child.gameOver():
                     self.endTime = time.time();
                     return child
@@ -206,11 +271,11 @@ class Graph:
                 continue
 
             visited.append(states[-1][0].getMatrix())
-            newChildren = states[-1][0].generateChilds(None)
-            newChildren.reverse()
+            children = states[-1][0].generateChilds(None)
+            children.reverse()
             states.pop()
 
-            for child in newChildren:
+            for child in children:
                 if child.gameOver():
                     self.endTime = time.time()
                     return child
@@ -244,19 +309,26 @@ class Graph:
                 continue
 
             visited.append(states[-1][0].getMatrix())
-            newChildren = states[-1][0].generateChilds(None)
-            newChildren.reverse()
+            children = states[-1][0].generateChilds(None)
+            children.reverse()
             value = states[-1][1] + 1
             states.pop()
 
-            for newChild in newChildren:
+            for child in children:
 
-                if newChild.gameOver():
+                if child.gameOver():
                     self.endTime = time.time()
+<<<<<<< HEAD
                     return newChild
                 elif newChild.getMatrix() not in visited:
                     self.statesCounter += 1
                     states.append([newChild, value])
+=======
+                    return child
+                elif child.getMatrix() not in visited:
+                    self.statesCounter+=1
+                    states.append([child, value])
+>>>>>>> 127be939caa535ca1867f1d08648c779391b95ed
 
     def uniformCostSearch(self, initState):
 
