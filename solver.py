@@ -123,6 +123,7 @@ class Graph:
         states.append(node)
         visited.append(node.getMatrix())
         self.statesCounter = 1
+        self.startTime = time.time()
 
         while states:
             state=states.pop(0)     
@@ -130,6 +131,7 @@ class Graph:
             for child in children:         
                 if child.getMatrix() not in visited:
                     if child.gameOver():
+                        self.endTime = time.time()
                         return child
                     else:
                         self.statesCounter += 1
@@ -305,49 +307,51 @@ class Graph:
     def limitedDepthSolveBlock(self,rootnode,limit):
         finalState = self.limitedDepthSearch(rootnode,limit)    
         print("\nLimited Depth\n", "Number of states -> ",
-              self.statesCounter, " \n Number of moves  -> ", finalState.getDepth())
+              self.statesCounter, " \n Number of moves  -> ", finalState.getDepth(),
+              "\nElapsed Time : ", self.endTime - self.startTime, " seconds"
+              )
         self.getSolutionPath(finalState)
 
     def iterativeSolveBlock(self,rootnode,progress):
         finalState = self.progressiveDeepening(rootnode,progress)    
         print("\nIterative Deepening\n", "Number of states -> ",
               self.statesCounter, " \n Number of moves  -> ", finalState.getDepth(),
-              "\nElapsed Time : ", format(self.endTime - self.startTime,".5f"), " seconds")
+              "\nElapsed Time : ", self.endTime - self.startTime, " seconds")
         self.getSolutionPath(finalState)
 
     def depthSolveBlock(self,rootnode):
         finalState = self.depthFirst(rootnode)
         print("\nDepth First Search\n", "Number of states -> ",
               self.statesCounter, " \n Number of moves  -> ", finalState.getDepth(),
-              "\nElapsed Time : ", format(self.endTime - self.startTime,".5f") , " seconds")
+              "\nElapsed Time : ", self.endTime - self.startTime , " seconds")
         self.getSolutionPath(finalState)
         
     def breadthSolveBlock(self,rootnode):
         finalState=self.breadthFirst(rootnode)
         print("\nBreadth First Search\n", "Number of states -> ",
               self.statesCounter, " \n Number of moves  -> ", finalState.getDepth(),
-              "\nElapsed Time : ", format(self.endTime - self.startTime,".5f"), " seconds")
+              "\nElapsed Time : ", self.endTime - self.startTime, " seconds")
         self.getSolutionPath(finalState)
     
     def uniformSolveBlock(self,rootnode):
         finalState = self.uniformCostSearch(rootnode)
         print("\nUniform Cost Search\n", "Number of states -> ",
               self.statesCounter, " \n Number of moves  -> ", finalState.getDepth(),
-              "\nElapsed Time : ", format(self.endTime - self.startTime,".5f"), " seconds")
+              "\nElapsed Time : ", self.endTime - self.startTime, " seconds")
         self.getSolutionPath(finalState)
 
     def greedySolveBlock(self,rootnode):
         finalState = self.greedySearch(rootnode)
         print("\nGreedy Search\n", "Number of states -> ",
               self.statesCounter, " \n Number of moves  -> ", finalState.getDepth(),
-              "\nElapsed Time : ", format(self.endTime - self.startTime,".5f"), " seconds")
+              "\nElapsed Time : ", self.endTime - self.startTime, " seconds")
         self.getSolutionPath(finalState)
 
     def aStarSolveBlock(self,rootnode):
         finalState = self.aStarSearch(rootnode)
         print("\nA* Search\n", "Number of states -> ",
               self.statesCounter, " \n Number of moves  -> ", finalState.getDepth(),
-              "\nElapsed Time : ", format(self.endTime - self.startTime,".5f"), " seconds")
+              "\nElapsed Time : ", self.endTime - self.startTime, " seconds")
         solution = self.getSolutionPath(finalState)
 
 

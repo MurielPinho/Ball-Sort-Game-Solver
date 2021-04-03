@@ -90,6 +90,7 @@ class gameLoop:
         self.currentLevel = 0
         self.hint = [0,0]
         self.showHint = False
+        self.showAuto = False
         self.solver = 1
         self.clickable = []
         pygame.init()
@@ -114,7 +115,10 @@ class gameLoop:
 
         if self.showHint:
             hintText = font.render("%d -> %d" % tuple(self.hint), True, black)
-            screen.blit(hintText,(590,70))    
+            screen.blit(hintText,(590,70))
+        if self.showAuto:
+            autoText = font.render("Auto Solving!",True,black)
+            screen.blit(autoText,(300,500))
 
         for x  in range(0,self.game.ntubes):
             self.drawTube(x)    
@@ -179,7 +183,7 @@ class gameLoop:
 
 
     def autoSolve(self):
-        self.showHint = True
+        self.showAuto = True
         root = Node(None, self.game.arrTotal, self.game.completed, self.game.n, self.game.m, self.game.ntubes, (-1, -1),
                     0, 0)
         graph1 = Graph(root)
@@ -190,13 +194,14 @@ class gameLoop:
             self.game.moveBall(x[-1][0], x[-1][1])
             self.update()
             pygame.time.wait(500)
+        self.showAuto = False
 
     def solveAll(self):
         root = Node(None,self.game.arrTotal,self.game.completed,self.game.n,self.game.m,self.game.ntubes,(-1,-1),0,0)
         graph1 = Graph(root)
         graph1.breadthSolveBlock(root)
         graph1.depthSolveBlock(root)
-        graph1.limitedDepthSolveBlock(root,100)
+        graph1.limitedDepthSolveBlock(root,25)
         graph1.iterativeSolveBlock(root,10)
         graph1.uniformSolveBlock(root)
         graph1.greedySolveBlock(root)
