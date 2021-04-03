@@ -212,8 +212,10 @@ class gameLoop:
         graph1.limitedDepthSolveBlock(root,25)
         graph1.iterativeSolveBlock(root,10)
         graph1.uniformSolveBlock(root)
-        graph1.greedySolveBlock(root)
-        graph1.aStarSolveBlock(root)
+        graph1.greedySolveBlock(root,1)
+        graph1.greedySolveBlock(root,2)
+        graph1.aStarSolveBlock(root,1)
+        graph1.aStarSolveBlock(root,2)
 
 
 

@@ -67,6 +67,16 @@ class Node:
                         break
             elif len(column)==1: self.evaluatedValue += 1
 
+    def evaluateState2(self):
+        for column in self.matrix:
+            if len(column)==0:
+                continue
+            else: num = column[0]
+            for i in range(0,len(column)):
+                if column[i] == num:
+                    self.evaluatedValue+=1
+                else: break 
+
     """returns true if a game is over, false otherwise"""
 
     def gameOver(self):
@@ -96,7 +106,7 @@ class Node:
 
 
     """returns an array with all the possible child states from a given parent node"""
-    def generateChilds(self):
+    def generateChilds(self,heuristic):
         childs=[]
         for i in range(0,self.ntubes):
             for j in range(0,self.ntubes):
@@ -104,7 +114,10 @@ class Node:
                 if self.validMove(i,j) and i!=y[1]:
                     newstate = Node(self,copy.deepcopy(self.getMatrix()),copy.deepcopy(self.getArrCompleted()),self.n,self.m,self.ntubes,(i,j),self.getDepth()+1,0)
                     newstate.moveBall(i,j)
-                    newstate.evaluateState()
+                    if heuristic == 1:
+                        newstate.evaluateState()
+                    elif heuristic == 2:
+                        newstate.evaluateState2()
                     childs.append(newstate)
         return childs
 
@@ -127,7 +140,7 @@ class Graph:
 
         while states:
             state=states.pop(0)     
-            children = state.generateChilds()
+            children = state.generateChilds(None)
             for child in children:         
                 if child.getMatrix() not in visited:
                     if child.gameOver():
@@ -150,7 +163,7 @@ class Graph:
         while not len(states) == 0 :
 
             visited.append(states[-1].getMatrix())
-            newChildren = states[-1].generateChilds()
+            newChildren = states[-1].generateChilds(None)
             newChildren.reverse()
             states.pop()
 
@@ -178,7 +191,7 @@ class Graph:
                 continue
 
             visited.append(states[-1][0].getMatrix())
-            newChildren = states[-1][0].generateChilds()
+            newChildren = states[-1][0].generateChilds(None)
             newChildren.reverse()
             states.pop()
 
@@ -216,7 +229,7 @@ class Graph:
                 continue
 
             visited.append(states[-1][0].getMatrix())
-            newChildren = states[-1][0].generateChilds()
+            newChildren = states[-1][0].generateChilds(None)
             newChildren.reverse()
             value = states[-1][1] + 1
             states.pop()
@@ -242,7 +255,7 @@ class Graph:
         while states:
             states.sort(key=lambda x: x[1])
             state = states.pop(0)
-            children = state[0].generateChilds()
+            children = state[0].generateChilds(None)
             for child in children:
                 if child.getMatrix() not in visited:
                     if child.gameOver():
@@ -253,7 +266,7 @@ class Graph:
                         visited.append(child.getMatrix())
                         states.append([child,child.getDepth()])
 
-    def greedySearch(self, initState):
+    def greedySearch(self, initState,heuristic):
 
         visited = []
         states = []
@@ -263,11 +276,14 @@ class Graph:
         self.startTime = time.time()
 
         while states:
+
             states.sort(key=lambda x:x[1])
+            if heuristic==2:
+                states.reverse()
             
             state = states.pop(0)
-            
-            children = state[0].generateChilds()
+            children = state[0].generateChilds(heuristic)
+
             for child in children:
                 if child.getMatrix() not in visited:
                     if child.gameOver():
@@ -278,7 +294,7 @@ class Graph:
                         visited.append(child.getMatrix())
                         states.append([child,child.getEvaluatedValue()])
     
-    def aStarSearch(self, initState):
+    def aStarSearch(self, initState,heuristic):
 
         visited = []
         states = []
@@ -289,8 +305,11 @@ class Graph:
 
         while states:
             states.sort(key=lambda x: x[1])
+            if heuristic==2:
+                states.reverse()
             state = states.pop(0)
-            children = state[0].generateChilds()
+            
+            children = state[0].generateChilds(heuristic)
             for child in children:
                 if child.getMatrix() not in visited:
                     if child.gameOver():
@@ -340,19 +359,19 @@ class Graph:
               "\nElapsed Time : ", self.endTime - self.startTime, " seconds")
         self.getSolutionPath(finalState)
 
-    def greedySolveBlock(self,rootnode):
-        finalState = self.greedySearch(rootnode)
+    def greedySolveBlock(self,rootnode,heuristic):
+        finalState = self.greedySearch(rootnode,heuristic)
         print("\nGreedy Search\n", "Number of states -> ",
               self.statesCounter, " \n Number of moves  -> ", finalState.getDepth(),
-              "\nElapsed Time : ", self.endTime - self.startTime, " seconds")
+              "\nElapsed Time : ", self.endTime - self.startTime, " seconds","\nHeuristic -> ",heuristic)
         self.getSolutionPath(finalState)
 
-    def aStarSolveBlock(self,rootnode):
-        finalState = self.aStarSearch(rootnode)
+    def aStarSolveBlock(self,rootnode,heuristic):
+        finalState = self.aStarSearch(rootnode,heuristic)
         print("\nA* Search\n", "Number of states -> ",
               self.statesCounter, " \n Number of moves  -> ", finalState.getDepth(),
-              "\nElapsed Time : ", self.endTime - self.startTime, " seconds")
-        solution = self.getSolutionPath(finalState)
+              "\nElapsed Time : ", self.endTime - self.startTime, " seconds","\nHeuristic -> ",heuristic)
+        self.getSolutionPath(finalState)
 
 
     def getSolutionPath(self,node):
@@ -371,13 +390,13 @@ class Graph:
     
     def solve(self,rootnode,solver):
         if solver == 1:
-            solution = self.aStarSearch(rootnode)
+            solution = self.aStarSearch(rootnode,1)
         if solver == 2:
-            solution = self.greedySearch(rootnode)
+            solution = self.greedySearch(rootnode,1)
         if solver == 3:
             solution = self.depthFirst(rootnode)
         else:
-            solution = self.aStarSearch(rootnode)
+            solution = self.aStarSearch(rootnode,1)
         return solution
 
     def getHint(self, rootnode, solver):
