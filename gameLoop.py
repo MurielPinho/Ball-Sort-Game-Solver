@@ -108,6 +108,7 @@ class gameLoop:
         self.solver = 1
         self.clickable = []
         self.noSols = False
+        self.currAlg = ""
         pygame.init()
 
     def loadNextLevel(self):
@@ -141,8 +142,11 @@ class gameLoop:
             hintText = font.render("%d -> %d" % tuple(self.hint), True, black)
             screen.blit(hintText, (590, 70))
         if self.showAuto:
-            autoText = font.render("Auto Solving!", True, black)
-            screen.blit(autoText, (300, 500))
+            autoText = font.render("Auto Solving: ", True, black)
+            screen.blit(autoText, (170, 500))
+
+            algo = font.render(self.currAlg, True, black)
+            screen.blit(algo, (430, 500))
 
         if self.noSols:
             noSolution = font.render('No Solution', True, black)
@@ -258,20 +262,28 @@ class gameLoop:
                 elif event.key == K_s:
                     self.solveAll()
                 elif event.key == K_a:
+                    self.currAlg = "A*"
                     self.autoSolve(1)
                 elif event.key == K_1:
+                    self.currAlg = "A*"
                     self.autoSolve(1)  # A*
                 elif event.key == K_2:
+                    self.currAlg = "Greedy"
                     self.autoSolve(2)  # Greedy
                 elif event.key == K_3:
+                    self.currAlg = "DFS"
                     self.autoSolve(3)  # dfs
                 elif event.key == K_4:
+                    self.currAlg = "BFS"
                     self.autoSolve(4)  # bfs
                 elif event.key == K_5:
+                    self.currAlg = "Uniform Cost"
                     self.autoSolve(5)  # uniform cost
                 elif event.key == K_6:
+                    self.currAlg = "Iterative Deepening (5)"
                     self.autoSolve(6)  # iterative deepening
                 elif event.key == K_7:
+                    self.currAlg = "Limited Depth (30)"
                     self.autoSolve(7)  # Limited depth
                 elif event.key == K_d:
                     self.noSols = False
