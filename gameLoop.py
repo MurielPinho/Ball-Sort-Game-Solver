@@ -50,6 +50,7 @@ class Game:
         self.arrTotal=levels[level][3]
         self.completed = [0]*self.ntubes
         self.tubesArray = [0]*self.ntubes
+        self.nMoves = 0
 
     def fillCompleted(self,col):
         if self.checkCompleted(col):
@@ -74,6 +75,7 @@ class Game:
             num = self.arrTotal[fromCol].pop(-1)
             self.arrTotal[toCol].append(num)
             self.fillCompleted(toCol)
+            self.nMoves += 1
         else:print("Invalid Move!")
 
     def gameOver(self):
@@ -111,6 +113,12 @@ class gameLoop:
         screen.blit(levelText,(137,70))         
         hint = font.render('Hint', True, black)
         button = screen.blit(hint,(600,30))
+        moves = font.render('Moves', True, black)
+        screen.blit(moves,(350,30))
+        nmoves = font.render("%d" % (self.game.nMoves),True,black)
+        screen.blit(nmoves,(400,70))
+
+
         self.clickable.append(button)
 
         if self.showHint:
