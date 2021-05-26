@@ -354,15 +354,12 @@ class Graph:
                     
     def generateStates(self, rootnode, nBalls):
         finalState = self.bfsStates(rootnode)
-        result = []
         res = {}
         for state in range(0, len(finalState)):
-            print(state,": ")
             for col in finalState[state]:
                 if(len(col) < nBalls):
                     for i in range(len(col), nBalls):
                         col.append(0)
-            result.append(finalState[state])
             res[state]=finalState[state]
         return res
 
@@ -420,3 +417,11 @@ class Graph:
             else:
                 break
         return solution[-1][1]
+
+    def getNeededMoves(self,rootnode):
+        finalState = self.greedySearch(rootnode)
+        return finalState.getDepth()
+        
+       
+
+
