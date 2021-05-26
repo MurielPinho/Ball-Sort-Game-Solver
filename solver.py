@@ -306,11 +306,11 @@ class Graph:
     def breadthSolveBlock(self,rootnode):
         finalState=self.breadthFirst(rootnode)
         result = []
-        for state in range(0,len(finalState)):
+        for state in range(0,300):
             print(state,": ")
             for col in finalState[state]:
-                if(len(col) < 3):
-                    for i in range(len(col),3):
+                if(len(col) < 4):
+                    for i in range(len(col),4):
                         col.append(0)
             result.append(finalState[state])
             print(finalState[state],",\n")
