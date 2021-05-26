@@ -23,7 +23,7 @@ purple = (156, 39, 176)
 
 levels = [
     #[2,4,3,[[2,2,2,1],[1,1,1,2],[]]],
-    [3,4,4,[[2,2,1,3],[1,1,2,3],[2,1,3,3],[]]],
+    [2,3,3,[[1,1,2],[2,1,2],[]]],
     #[3,4,4,[[6,5,6],[5,5,6,4],[6,4,5,4],[4]]],
     #[3,4,5,[[1,2,3,1],[2,2,3,1],[3,1,2,3],[],[]]],
     #[3,4,5,[[1,2,3,3],[1,2,1,2],[3,1,2,3],[],[]]],
@@ -178,13 +178,6 @@ class gameLoop:
         root = Node(None,self.game.arrTotal,self.game.completed,self.game.n,self.game.m,self.game.ntubes,(-1,-1),0,0)
         graph1 = Graph(root)
         graph1.breadthSolveBlock(root)
-        graph1.depthSolveBlock(root)
-        graph1.limitedDepthSolveBlock(root,19)
-        graph1.iterativeSolveBlock(root,10)
-        graph1.uniformSolveBlock(root)
-        graph1.greedySolveBlock(root)
-        graph1.aStarSolveBlock(root)
-
 
     def handleEvents(self):
         for event in pygame.event.get():

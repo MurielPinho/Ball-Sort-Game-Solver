@@ -83,7 +83,7 @@ class Node:
     """returns true if a given toCol fromCol move is possible given a matrix and its completed array"""
 
     def validMove(self,fromCol,toCol):
-        if len(self.matrix[fromCol]) > 0 and len(self.matrix[toCol]) < self.m and fromCol != toCol and not(self.arrCompleted[fromCol]):
+        if len(self.matrix[fromCol]) > 0 and len(self.matrix[toCol]) < self.m and fromCol != toCol:
             if len(self.matrix[toCol]) == 0:
                 return True
             elif self.matrix[fromCol][-1] == self.matrix[toCol][-1]:
@@ -126,12 +126,10 @@ class Graph:
             children = state.generateChilds()
             for child in children:         
                 if child.getMatrix() not in visited:
-                    if child.gameOver():
-                        return child
-                    else:
                         self.statesCounter += 1
                         visited.append(child.getMatrix())
                         states.append(child)
+        return visited
 
     
 
@@ -307,9 +305,17 @@ class Graph:
         
     def breadthSolveBlock(self,rootnode):
         finalState=self.breadthFirst(rootnode)
-        print("\nBreadth First Search\n", "Number of states -> ",
-              self.statesCounter, " \n Number of moves  -> ", finalState.getDepth())
-        self.getSolutionPath(finalState)
+        result = []
+        for state in range(0,len(finalState)):
+            print(state,": ")
+            for col in finalState[state]:
+                if(len(col) < 3):
+                    for i in range(len(col),3):
+                        col.append(0)
+            result.append(finalState[state])
+            print(finalState[state],",\n")
+
+                    
     
     def uniformSolveBlock(self,rootnode):
         finalState = self.uniformCostSearch(rootnode)
