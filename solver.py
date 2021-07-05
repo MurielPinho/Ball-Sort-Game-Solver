@@ -100,6 +100,7 @@ class Node:
 
     #returns true if a given toCol fromCol move is possible given a matrix and its completed array
 
+
     def validMove(self, fromCol, toCol):
         if len(self.matrix[fromCol]) > 0 and len(self.matrix[toCol]) < self.m and fromCol != toCol and not (
         self.arrCompleted[fromCol]):
@@ -111,6 +112,7 @@ class Node:
                 return False
         else:
             return False
+
 
 
     #returns an array with all the possible child states from a given parent node
@@ -129,6 +131,7 @@ class Node:
                         newstate.evaluateState2()
                     childs.append(newstate)
         return childs
+    
 
 
 class Graph:
@@ -139,8 +142,7 @@ class Graph:
         self.endTime = 0
         
 #breadth first search algoritm
-    def breadthFirst(self,node):
-        
+    def breadthFirst(self,node):        
         visited = []
         states = []
         states.append(node) #append root
@@ -153,6 +155,24 @@ class Graph:
             children = state.generateChilds(None) #generates it's possible child states
             for child in children:         
                 if child.getMatrix() not in visited:
+                        self.statesCounter += 1
+                        visited.append(child.getMatrix())
+                        states.append(child)
+        return visited
+
+
+    def breadthFirst(self, node):
+
+        visited = []
+        states = []
+        states.append(node)
+        visited.append(node.getMatrix())
+        self.statesCounter = 1
+        while states:
+            state = states.pop(0)
+            children = state.generateChilds()
+            for child in children:
+                if child.getMatrix() not in visited:
                     if child.gameOver():
                         self.endTime = time.time()
                         return child  #found solution
@@ -162,6 +182,7 @@ class Graph:
                         states.append(child)
 
     def depthFirst(self, initState):
+
         visited = []
         states = []
         states.append(initState) #append root
@@ -337,6 +358,7 @@ class Graph:
               )
         self.getSolutionPath(finalState)
 
+
     def iterativeSolveBlock(self, rootnode, progress):
         finalState = self.progressiveDeepening(rootnode, progress)
         if not finalState:
@@ -367,7 +389,9 @@ class Graph:
               "\nElapsed Time : ", self.endTime - self.startTime, " seconds")
         self.getSolutionPath(finalState)
 
+
     def uniformSolveBlock(self, rootnode):
+
         finalState = self.uniformCostSearch(rootnode)
         if not finalState:
             print("Uniform Cost: No solutions!")
@@ -447,6 +471,7 @@ class Graph:
                 break
         return solution[-1][1]
 
+
     def getAutoSolve(self, rootnode, solver):
         node = self.solve(rootnode, solver)
         solution = []
@@ -461,3 +486,4 @@ class Graph:
             else:
                 break
         return solution
+
