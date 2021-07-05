@@ -1,6 +1,12 @@
 # Ball Sort Game Solver
 
 This is an implementation of the puzzle game Ball Sort, the implementation has 8 example levels but more can be added in the files and it has features such as: Hints, Solver with multiple Algorithms and a Auto Solver.
+## Screenshots
+
+| | |
+|:-------------------------:|:-------------------------:|
+|<img width="1604" alt="Screenshot1" src="Screenshots/1.png">  |  <img width="1604" alt="Screenshot2" src="Screenshots/2.png"> |
+|  <img width="1604" alt="Screenshot3" src="Screenshots/3.png"> |<img width="1604" alt="Screenshot4" src="Screenshots/4.png">  |  
 
 ## Usage Instruction
 ### First setup
