@@ -229,10 +229,10 @@ class gameLoop:
            self.showAuto = False
         solution.reverse()
         for x in solution:
-            pygame.time.wait(500)
+            pygame.time.wait(200)
             self.game.moveBall(x[-1][0], x[-1][1])
             self.update()
-            pygame.time.wait(500)
+            pygame.time.wait(200)
         self.showAuto = False
 
     def solveAll(self):
@@ -294,6 +294,7 @@ class gameLoop:
 
 
             elif event.type == QUIT:
+                pygame.quit()
                 return False
         return True
 
