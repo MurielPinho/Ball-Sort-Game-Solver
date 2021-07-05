@@ -141,25 +141,6 @@ class Graph:
         self.startTime = 0
         self.endTime = 0
         
-#breadth first search algoritm
-    def breadthFirst(self,node):        
-        visited = []
-        states = []
-        states.append(node) #append root
-        visited.append(node.getMatrix()) #append root matrix state 
-        self.statesCounter = 1
-        self.startTime = time.time()
-
-        while states:
-            state=states.pop(0)   #pops first element in the queue
-            children = state.generateChilds(None) #generates it's possible child states
-            for child in children:         
-                if child.getMatrix() not in visited:
-                        self.statesCounter += 1
-                        visited.append(child.getMatrix())
-                        states.append(child)
-        return visited
-
 
     def breadthFirst(self, node):
 
@@ -170,7 +151,7 @@ class Graph:
         self.statesCounter = 1
         while states:
             state = states.pop(0)
-            children = state.generateChilds()
+            children = state.generateChilds(None)
             for child in children:
                 if child.getMatrix() not in visited:
                     if child.gameOver():
