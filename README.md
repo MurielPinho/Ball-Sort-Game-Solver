@@ -1,4 +1,6 @@
-# IartProj
+# Ball Sort Game Solver
+
+This is an implementation of the puzzle game Ball Sort, the implementation has 8 example levels but more can be added in the files and it has features such as: Hints, Solver with multiple Algorithms and a Auto Solver.
 
 ## Usage Instruction
 ### First setup
